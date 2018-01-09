@@ -8,14 +8,14 @@ public class ControlBoard extends RemoteControl {
 	//Driver Buttons
 	public ButtonReader arcadeDriveButton, tankDriveButton, driveBackButton, driveBackOtherButton;
 	//Operator Buttons
-	public ButtonReader gearWheelOuttakeButton, gearWheelIntakeButton, toggleDisabledGearTilter, toggleGearManual, gearTilterRampButton, gearTotalIntakeButton;
+	public ButtonReader armManualButton, armSwitchButton, armScaleButton, armFeedButton, armClimbButton;
 	//Driver Triggers
 	public TriggerReader slowDriveTier1Button, slowDriveTier2Button;
 	//Operator Triggers
 	public TriggerReader gearTilterDownButton, gearTilterUpButton;
 	
 	private boolean tankDriveDesired, arcadeDriveDesired, slowDriveTier1Desired, slowDriveTier2Desired,
-			driveBackDesired, driveBackOtherDesired, gearTilterDownDesired, gearWheelOuttakeDesired, gearWheelIntakeDesired, toggleGearManualDesired, gearTilterRampDesired, gearTilterUpDesired, gearTotalIntakeDesired;
+			driveBackDesired, driveBackOtherDesired, toggleArmManualDesired, armSwitchDesired, armScaleDesired, armFeedDesired, armClimbDesired;
 
 	private double driverLeftJoyX, driverLeftJoyY, driverRightJoyX, driverRightJoyY;
 	private double operatorLeftJoyX, operatorLeftJoyY, operatorRightJoyX, operatorRightJoyY;
@@ -37,14 +37,12 @@ public class ControlBoard extends RemoteControl {
 			slowDriveTier2Button = new TriggerReader(driverJoy, XInput.XINPUT_WIN_LEFT_TRIGGER_AXIS);
 			
 			//Operator Controls
-			gearWheelOuttakeButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RED_BUTTON);
-			gearWheelIntakeButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_GREEN_BUTTON);
-			gearTotalIntakeButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RIGHT_BUMPER);
-			gearTilterRampButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_LEFT_BUMPER);
-			toggleGearManual = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_BACK_BUTTON);
+			armScaleButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RED_BUTTON);
+			armSwitchButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_GREEN_BUTTON);
+			armClimbButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RIGHT_BUMPER);
+			armFeedButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_LEFT_BUMPER);
+			armManualButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_BACK_BUTTON);
 			
-			gearTilterDownButton = new TriggerReader(operatorJoy, XInput.XINPUT_WIN_RIGHT_TRIGGER_AXIS);
-			gearTilterUpButton = new TriggerReader(operatorJoy, XInput.XINPUT_WIN_LEFT_TRIGGER_AXIS);
 
 		}
 
@@ -63,14 +61,12 @@ public class ControlBoard extends RemoteControl {
 		driveBackOtherDesired = false;
 		
 		//Operator Vars
-		gearWheelIntakeDesired = false;
-		gearWheelOuttakeDesired = false;
-		gearTilterRampDesired = false;
-		toggleGearManualDesired = false;
-		gearTotalIntakeDesired = false;
+		armSwitchDesired = false;
+		armScaleDesired = false;
+		armFeedDesired = false;
+		toggleArmManualDesired = false;
+		armClimbDesired = false;
 		
-		gearTilterDownDesired = false;
-		gearTilterUpDesired = false;
 	}
 
 	public void readControls() {
@@ -97,14 +93,12 @@ public class ControlBoard extends RemoteControl {
 		driveBackOtherDesired = driveBackOtherButton.isDown();
 		
 		//Operator Vars
-		gearWheelIntakeDesired = gearWheelIntakeButton.isDown();
-		gearWheelOuttakeDesired = gearWheelOuttakeButton.isDown();
-		gearTilterRampDesired = gearTilterRampButton.isDown();
-		gearTotalIntakeDesired = gearTotalIntakeButton.isDown();
-		toggleGearManualDesired = toggleGearManual.isDown();
+		armSwitchDesired = armSwitchButton.isDown();
+		armScaleDesired = armScaleButton.isDown();
+		armClimbDesired = armClimbButton.isDown();
+		armFeedDesired = armFeedButton.isDown();
+		toggleArmManualDesired = armManualButton.isDown();
 		
-		gearTilterDownDesired = gearTilterDownButton.isDown();
-		gearTilterUpDesired = gearTilterUpButton.isDown();
 	}
 
 	public void readAllButtons() {
@@ -116,15 +110,15 @@ public class ControlBoard extends RemoteControl {
 		driveBackButton.readValue();
 		driveBackOtherButton.readValue();
 		//Operator 
-		gearTilterDownButton.readValue();
-		gearTilterUpButton.readValue();
-		gearTilterRampButton.readValue();
-		gearWheelIntakeButton.readValue();
-		gearWheelOuttakeButton.readValue();
-		toggleGearManual.readValue();
-		gearTotalIntakeButton.readValue();
+		
+		armClimbButton.readValue();
+		armSwitchButton.readValue();
+		armScaleButton.readValue();
+		armFeedButton.readValue();
+		armManualButton.readValue();
 	}
 
+	//Axes to get joystick value
 	public double getJoystickValue(Joysticks j, Axes a) {
 		switch (j) {
 		case kDriverJoy:
@@ -180,31 +174,30 @@ public class ControlBoard extends RemoteControl {
 		return driveBackOtherDesired;
 	}
 	
-	public boolean getGearTilterDownDesired() {
-		return gearTilterDownDesired;
-	}
 	
-	public boolean getGearTilterUpDesired() {
-		return gearTilterUpDesired;
+
+	@Override
+	public boolean toggleManualArmDesired() {
+		return toggleArmManualDesired;
 	}
-	
-	public boolean getGearTilterRampDesired() {
-		return gearTilterRampDesired;
+
+	@Override
+	public boolean getSwitchArmDesired() {
+		return armSwitchDesired;
 	}
-	
-	public boolean getGearWheelOuttakeDesired() {
-		return gearWheelOuttakeDesired;
+
+	@Override
+	public boolean getScaleArmDesired() {
+		return armScaleDesired;
 	}
-	
-	public boolean getGearWheelIntakeDesired() {
-		return gearWheelIntakeDesired;
+
+	@Override
+	public boolean getFeedArmDesired() {
+		return armFeedDesired;
 	}
-	
-	public boolean getGearIntakeDesired() {
-		return gearTotalIntakeDesired;
-	}
-	
-	public boolean getManualGearDesired() {
-		return toggleGearManualDesired;
+
+	@Override
+	public boolean getClimbArmDesired() {
+		return armClimbDesired;
 	}
 }

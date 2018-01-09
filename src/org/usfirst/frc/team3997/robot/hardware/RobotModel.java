@@ -3,13 +3,16 @@ package org.usfirst.frc.team3997.robot.hardware;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.interfaces.Potentiometer;
 
+import org.opencv.features2d.Params;
 import org.usfirst.frc.team3997.robot.hardware.Ports;
 
 public class RobotModel {
 
 	public Spark leftDriveMotorA, leftDriveMotorB, rightDriveMotorA, rightDriveMotorB;
+	public Victor leftArmMotor, rightArmMotor;
 	public SpeedControllerGroup leftDriveMotors, rightDriveMotors;
 	public Encoder leftDriveEncoder, rightDriveEncoder;
+	public AbsoluteEncoder armEncoder;
 	public MPU9250Gyro gyro;
 
 	//public CameraServer camera;
@@ -29,9 +32,13 @@ public class RobotModel {
 		leftDriveMotors = new SpeedControllerGroup(leftDriveMotorA, leftDriveMotorB);
 		rightDriveMotors = new SpeedControllerGroup(rightDriveMotorA, rightDriveMotorB);
 
+		leftArmMotor = new Victor(Ports.LEFT_ARM_MOTOR_PWM_PORT);
+		rightArmMotor = new Victor(Ports.RIGHT_ARM_MOTOR_PWM_PORT);
 		// TODO add real input channel
 		// gyro = new AnalogGyro(channel);
-
+		AnalogInput.setGlobalSampleRate(62500);
+		armEncoder = new AbsoluteEncoder(Ports.ARM_ENCODER);
+		
 		leftDriveEncoder = new Encoder(Ports.LEFT_DRIVE_ENCODER_PORTS[0], Ports.LEFT_DRIVE_ENCODER_PORTS[1]);
 		rightDriveEncoder = new Encoder(Ports.RIGHT_DRIVE_ENCODER_PORTS[0], Ports.RIGHT_DRIVE_ENCODER_PORTS[1]);
 
@@ -178,6 +185,7 @@ public class RobotModel {
 	public void resetEncoders() {
 		leftDriveEncoder.reset();
 		rightDriveEncoder.reset();
+		
 	}
 
 	public double getEncoderError() {
@@ -201,6 +209,30 @@ public class RobotModel {
 	public void setRightMotors(double output) {
 		rightDriveMotorA.set(output);
 		rightDriveMotorB.set(output);
+	}
+	
+	public void moveArm(double speed) {
+		leftArmMotor.set(-speed);
+		rightArmMotor.set(speed);
+	}
+	public double getAverageArmSpeed() {
+		return (leftArmMotor.getSpeed() + rightArmMotor.getSpeed()) /2;
+	}
+	
+	public double getArmEncoderRawValue() {
+		return armEncoder.getValue();
+	}
+	public double getAverageArmEncoderRawValue() {
+		return armEncoder.getAverageValue();
+	}
+	public double getAverageArmVoltage() {
+		return armEncoder.getAverageVoltage();
+	}
+	public double getArmVoltage() {
+		return armEncoder.getVoltage();
+	}
+	public double getArmAngle() {
+		return armEncoder.getAngle();
 	}
 	
 }
