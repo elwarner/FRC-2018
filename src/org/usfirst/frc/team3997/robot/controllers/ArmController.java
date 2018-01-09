@@ -78,6 +78,12 @@ public class ArmController {
 					armPIDController.disable();
 				}
 				
+				if(humanControl.getIntakeDesired()) {
+					intakeBlock();
+				} else if(humanControl.getOuttakeDesired()) {
+					outtakeBlock();
+				}
+				
 				if(humanControl.getClimbArmDesired()) {
 					goToClimbPosition();
 				} else if(humanControl.getScaleArmDesired()) {
@@ -126,6 +132,14 @@ public class ArmController {
 		armPIDController.enable();
 	}
 	
+	public void intakeBlock() {
+		robot.intakeBlock(1);
+	}
+	
+
+	public void outtakeBlock() {
+		robot.outtakeBlock(0.3);
+	}
 	
 	public void stop() {
 		armPIDController.disable();

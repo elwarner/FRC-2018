@@ -8,7 +8,7 @@ import org.usfirst.frc.team3997.robot.hardware.Ports;
 
 public class RobotModel {
 
-	public Spark leftDriveMotorA, leftDriveMotorB, rightDriveMotorA, rightDriveMotorB;
+	public Spark leftDriveMotorA, leftDriveMotorB, rightDriveMotorA, rightDriveMotorB, leftIntake, rightIntake;
 	public Victor leftArmMotor, rightArmMotor;
 	public SpeedControllerGroup leftDriveMotors, rightDriveMotors;
 	public Encoder leftDriveEncoder, rightDriveEncoder;
@@ -235,4 +235,12 @@ public class RobotModel {
 		return armEncoder.getAngle();
 	}
 	
+	public void intakeBlock(double speed) {
+		leftIntake.set(speed);
+		rightIntake.set(-speed);
+	}
+	public void outtakeBlock(double speed) {
+		leftIntake.set(-speed);
+		rightIntake.set(speed);
+	}
 }

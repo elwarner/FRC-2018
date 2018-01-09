@@ -8,14 +8,14 @@ public class ControlBoard extends RemoteControl {
 	//Driver Buttons
 	public ButtonReader arcadeDriveButton, tankDriveButton, driveBackButton, driveBackOtherButton;
 	//Operator Buttons
-	public ButtonReader armManualButton, armSwitchButton, armScaleButton, armFeedButton, armClimbButton;
+	public ButtonReader armManualButton, armSwitchButton, armScaleButton, armFeedButton, armClimbButton, intakeButton, outtakeButton;
 	//Driver Triggers
 	public TriggerReader slowDriveTier1Button, slowDriveTier2Button;
 	//Operator Triggers
 	public TriggerReader gearTilterDownButton, gearTilterUpButton;
 	
 	private boolean tankDriveDesired, arcadeDriveDesired, slowDriveTier1Desired, slowDriveTier2Desired,
-			driveBackDesired, driveBackOtherDesired, toggleArmManualDesired, armSwitchDesired, armScaleDesired, armFeedDesired, armClimbDesired;
+			driveBackDesired, driveBackOtherDesired, toggleArmManualDesired, armSwitchDesired, armScaleDesired, armFeedDesired, armClimbDesired, intakeDesired, outtakeDesired;
 
 	private double driverLeftJoyX, driverLeftJoyY, driverRightJoyX, driverRightJoyY;
 	private double operatorLeftJoyX, operatorLeftJoyY, operatorRightJoyX, operatorRightJoyY;
@@ -37,13 +37,14 @@ public class ControlBoard extends RemoteControl {
 			slowDriveTier2Button = new TriggerReader(driverJoy, XInput.XINPUT_WIN_LEFT_TRIGGER_AXIS);
 			
 			//Operator Controls
-			armScaleButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RED_BUTTON);
+			armScaleButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_YELLOW_BUTTON);
 			armSwitchButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_GREEN_BUTTON);
 			armClimbButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RIGHT_BUMPER);
 			armFeedButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_LEFT_BUMPER);
 			armManualButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_BACK_BUTTON);
 			
-
+			intakeButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_BLUE_BUTTON);
+			outtakeButton = new ButtonReader(operatorJoy, XInput.XINPUT_WIN_RED_BUTTON);
 		}
 
 		driverLeftJoyX = 0;
@@ -66,6 +67,9 @@ public class ControlBoard extends RemoteControl {
 		armFeedDesired = false;
 		toggleArmManualDesired = false;
 		armClimbDesired = false;
+		
+		intakeDesired = false;
+		outtakeDesired = false;
 		
 	}
 
@@ -98,6 +102,9 @@ public class ControlBoard extends RemoteControl {
 		armClimbDesired = armClimbButton.isDown();
 		armFeedDesired = armFeedButton.isDown();
 		toggleArmManualDesired = armManualButton.isDown();
+		
+		intakeDesired = intakeButton.isDown();
+		outtakeDesired = outtakeButton.isDown();
 		
 	}
 
@@ -199,5 +206,17 @@ public class ControlBoard extends RemoteControl {
 	@Override
 	public boolean getClimbArmDesired() {
 		return armClimbDesired;
+	}
+
+	@Override
+	public boolean getIntakeDesired() {
+		// TODO Auto-generated method stub
+		return intakeDesired;
+	}
+
+	@Override
+	public boolean getOuttakeDesired() {
+		// TODO Auto-generated method stub
+		return outtakeDesired;
 	}
 }
