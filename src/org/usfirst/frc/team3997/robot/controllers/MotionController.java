@@ -1,5 +1,7 @@
 package org.usfirst.frc.team3997.robot.controllers;
 
+import java.io.File;
+
 import org.usfirst.frc.team3997.robot.Params;
 import org.usfirst.frc.team3997.robot.hardware.RobotModel;
 
@@ -32,6 +34,31 @@ public class MotionController {
 		left = new EncoderFollower(modifier.getLeftTrajectory());
 		right = new EncoderFollower(modifier.getRightTrajectory());
 	}
+	
+public void setUp(Trajectory trajectoryInput) {
+		
+		trajectory = trajectoryInput;
+
+		// TODO find distance between front and rear axles of a vehicle
+		modifier = new TankModifier(trajectory).modify(0.5);
+		left = new EncoderFollower(modifier.getLeftTrajectory());
+		right = new EncoderFollower(modifier.getRightTrajectory());
+	}
+	
+	public void setUp(File trajectoryCSV) {
+		
+		trajectory = Pathfinder.readFromCSV(trajectoryCSV);
+
+		// TODO find distance between front and rear axles of a vehicle
+		modifier = new TankModifier(trajectory).modify(0.5);
+		left = new EncoderFollower(modifier.getLeftTrajectory());
+		right = new EncoderFollower(modifier.getRightTrajectory());
+	}
+
+	public static Trajectory generateTrajectory(Waypoint[] points) {
+		Trajectory.Config config = new Trajectory.Config(Trajectory.FitMethod.HERMITE_CUBIC, Trajectory.Config.SAMPLES_HIGH, 0.05, Params.maximum_velocity, Params.maximum_acceleration, Params.maximum_jerk);
+		return Pathfinder.generate(points, config);
+	}
 
 	public void enable() {
 		// TODO get max velocity
@@ -48,19 +75,21 @@ public class MotionController {
 		right.configureEncoder(robot.rightDriveEncoder.get(), 100, .1016);
 		right.configurePIDVA(1.0, 0.0, 0.0, (1 / Params.maximum_velocity), 0);
 		right.configurePIDVA(1.0, 0.0, 0.0, (1 / Params.maximum_velocity), 0);
+		robot.resetGyro();
 		
 	}
 	// TODO Put this in control loop
 	public void update() {
+		robot.updateGyro();
 		if(isEnabled) {
 			double l = left.calculate(robot.leftDriveEncoder.get());
 			double r = left.calculate(robot.rightDriveEncoder.get());
+			
 			
 			double gyro_heading = robot.getAngle();
 			double desired_heading = Pathfinder.r2d(left.getHeading());
 			double angleDifference = Pathfinder.boundHalfDegrees(desired_heading - gyro_heading);
 			double turn = 0.8 * (-1.0 / 80) * angleDifference;
-	
 			robot.setLeftMotors(l + turn);
 			robot.setRightMotors(r - turn);
 		}

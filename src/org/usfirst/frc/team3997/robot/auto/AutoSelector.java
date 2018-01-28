@@ -3,13 +3,13 @@ package org.usfirst.frc.team3997.robot.auto;
 import java.util.ArrayList;
 
 import org.usfirst.frc.team3997.robot.MasterController;
-import org.usfirst.frc.team3997.robot.auto.routines.CenterGearRoutine;
+import org.usfirst.frc.team3997.robot.auto.routines.CenterAutoRoutine;
 import org.usfirst.frc.team3997.robot.auto.routines.CustomDistanceRoutine;
 import org.usfirst.frc.team3997.robot.auto.routines.DoNothingRoutine;
 import org.usfirst.frc.team3997.robot.auto.routines.DriveThreeSecRoutine;
-import org.usfirst.frc.team3997.robot.auto.routines.LeftGearRoutine;
+import org.usfirst.frc.team3997.robot.auto.routines.LeftAutoRoutine;
 import org.usfirst.frc.team3997.robot.auto.routines.PassAutoLineRoutine;
-import org.usfirst.frc.team3997.robot.auto.routines.RightGearRoutine;
+import org.usfirst.frc.team3997.robot.auto.routines.RightAutoRoutine;
 import org.usfirst.frc.team3997.robot.auto.routines.TurnRoutine;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -19,18 +19,22 @@ public class AutoSelector {
 
 	SendableChooser<Integer> autoChooser;
 	private ArrayList<AutoRoutine> autoRoutines;
-	int selectedIndex = 0;
+	int selectedIndex;
 	
 	public AutoSelector(MasterController controllers) {
+		selectedIndex = 0;
+		autoRoutines = new ArrayList<AutoRoutine>();
 		//REMEMBER ORDER SAME ORDER AS LIST OPTIONS!!!
+		//
 		registerAutonomous(new DoNothingRoutine());
 		registerAutonomous(new DriveThreeSecRoutine(controllers));
 		registerAutonomous(new PassAutoLineRoutine(controllers));
 		registerAutonomous(new TurnRoutine(controllers));
 		registerAutonomous(new CustomDistanceRoutine(controllers));
-		registerAutonomous(new LeftGearRoutine(controllers));
-		registerAutonomous(new CenterGearRoutine(controllers));
-		registerAutonomous(new RightGearRoutine(controllers));
+		registerAutonomous(new LeftAutoRoutine(controllers));
+		registerAutonomous(new CenterAutoRoutine(controllers));
+		registerAutonomous(new RightAutoRoutine(controllers));
+		
 	} 
 	
 	public void listOptions() {
@@ -41,9 +45,9 @@ public class AutoSelector {
 		autoChooser.addObject("Pass Auto Line and back (Drive 100)", 2);
 		autoChooser.addObject("Turn 90 degrees", 3);
 		autoChooser.addObject("Custom Routine (check preferences)", 4);
-		autoChooser.addObject("Left Gear", 5);
-		autoChooser.addObject("Center Gear", 6);
-		autoChooser.addObject("Right Gear", 7);
+		autoChooser.addObject("Left Auto Routine", 5);
+		autoChooser.addObject("Center Auto Routine", 6);
+		autoChooser.addObject("Right Auto Routine", 7);
 
 		SmartDashboard.putData("Autonomous: ", autoChooser);
 	}
@@ -54,6 +58,7 @@ public class AutoSelector {
 	}
 	
 	public void registerAutonomous(AutoRoutine auto) {
+		//
 		autoRoutines.add(auto);
 	}
 	

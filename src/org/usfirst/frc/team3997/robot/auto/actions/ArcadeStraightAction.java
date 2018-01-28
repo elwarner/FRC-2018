@@ -28,7 +28,7 @@ public class ArcadeStraightAction extends Action{
 		this.robot = controllers.getRobotModel();
 		this.maxSpeed = maxSpeed;
 		this.timeAfterHit = timeAfterHit;
-		
+		start_time = 0;
 		reachedSetpoint = false;
 		leftEncoderStartDistance = 0.0; 
 		rightEncoderStartDistance = 0.0;
@@ -51,32 +51,42 @@ public class ArcadeStraightAction extends Action{
 
 	@Override
 	public void update() {
-		
+		robot.updateGyro();
 	}
-
+	//Disables PID
 	@Override
 	public void finish() {
 		driveTrain.straightPID.disable();
 	}
-
+	//
 	@Override
 	public void start() {
+		// Start timer
 		start_time = Timer.getFPGATimestamp();
+		
+		// Set PID SourceType for the left and right drive encoder
 		
 		robot.leftDriveEncoder.setPIDSourceType(PIDSourceType.kDisplacement);
 		robot.rightDriveEncoder.setPIDSourceType(PIDSourceType.kDisplacement);
-
+		
+		//resets the right and left drive encoders
+		
 		robot.leftDriveEncoder.reset();
 		robot.rightDriveEncoder.reset();
 		
+		// Gets distance for Left and Right Drive encoders
+		
 		leftEncoderStartDistance = robot.leftDriveEncoder.getDistance();
 		leftEncoderStartDistance = robot.rightDriveEncoder.getDistance();
+		
+		// Sets OutputRange, PID, and Setpoints.
 		
 		driveTrain.straightPID.setOutputRange(-maxSpeed, maxSpeed);
 		driveTrain.straightPID.setPID(P, I, D);
 		//TODO Maybe distance + encoderStartDistance or - encoder
 		driveTrain.straightPID.setSetpoint(distance);
 		
+		// Enables StraightPID
 		
 		driveTrain.straightPID.enable();
 	}

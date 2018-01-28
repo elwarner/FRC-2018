@@ -12,6 +12,7 @@ import org.usfirst.frc.team3997.robot.auto.actions.VisionAction;
 import org.usfirst.frc.team3997.robot.auto.actions.WaitAction;
 
 import edu.wpi.first.wpilibj.RobotState;
+import jaci.pathfinder.Trajectory;
 import jaci.pathfinder.Waypoint;
 
 public abstract class AutoRoutine {
@@ -44,8 +45,8 @@ public abstract class AutoRoutine {
 		runAction(new ArcadeStraightAction(controllers, distance, maxSpeed, timeout, timeAfterHit));
 	}
 	
-	public void pathFollower(MasterController controllers, Waypoint points[], double timeout) {
-		runAction(new PathFollowerAction(controllers, points, timeout));
+	public void pathFollower(MasterController controllers, Trajectory trajectory, double timeout) {
+		runAction(new PathFollowerAction(controllers, trajectory, timeout));
 	}
 	
 	public void waitTime(double seconds) {
@@ -68,7 +69,7 @@ public abstract class AutoRoutine {
 	public void runAction(Action action) {
 		action.start();
 		//TODO maybe add timer test this first
-		while((isActive()) && (!action.isFinished()) && (AutoRoutineRunner.getTimer().get() <= 15) && RobotState.isAutonomous() && !RobotState.isDisabled()) {
+		while((isActive()) && !(action.isFinished()) && (AutoRoutineRunner.getTimer().get() <= 15) && RobotState.isAutonomous() && !RobotState.isDisabled()) {
 			action.update();
 		}
 		action.finish();

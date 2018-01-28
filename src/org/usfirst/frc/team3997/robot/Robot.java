@@ -1,15 +1,15 @@
 package org.usfirst.frc.team3997.robot;
 
-import org.opencv.core.*;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Point3;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.usfirst.frc.team3997.robot.auto.Auto;
 import org.usfirst.frc.team3997.robot.auto.AutoRoutineRunner;
-import org.usfirst.frc.team3997.robot.controllers.ClimberController;
+import org.usfirst.frc.team3997.robot.auto.actions.Action;
+import org.usfirst.frc.team3997.robot.auto.actions.DriveIntervalAction;
 import org.usfirst.frc.team3997.robot.controllers.DriveController;
-import org.usfirst.frc.team3997.robot.controllers.GearController;
 import org.usfirst.frc.team3997.robot.controllers.LightController;
 import org.usfirst.frc.team3997.robot.controllers.MotionController;
 import org.usfirst.frc.team3997.robot.controllers.VisionController;
@@ -24,8 +24,10 @@ import edu.wpi.cscore.CvSource;
 import edu.wpi.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -38,7 +40,7 @@ public class Robot extends IterativeRobot {
 	double currTimeSec = 0;
 	double lastTimeSec = 0;
 	double deltaTimeSec = 0;
-
+	
 	RobotModel robot;
 	RemoteControl humanControl;
 	DriveController driveController;
@@ -48,13 +50,11 @@ public class Robot extends IterativeRobot {
 	DashboardInput input;
 
 	MotionController motion;
-	GearController gearController;
-	ClimberController climberController;
 
 	MasterController masterController;
-
 	Auto auto;
 	Timer timer;
+
 
 	/**
 	 * This function is run when the robot is first started up and should be
@@ -70,9 +70,8 @@ public class Robot extends IterativeRobot {
 		dashboardLogger = new DashboardLogger(robot, humanControl);
 		input = new DashboardInput();
 		motion = new MotionController(robot);
-		gearController = new GearController(robot, humanControl);
-		climberController = new ClimberController(robot, humanControl);
-		masterController = new MasterController(driveController, robot, gearController, motion, visionController,
+		
+		masterController = new MasterController(driveController, robot, motion, visionController,
 				lights);
 		auto = new Auto(masterController);
 		timer = new Timer();
@@ -93,22 +92,25 @@ public class Robot extends IterativeRobot {
 		lastTimeSec = 0.0;
 		deltaTimeSec = 0.0;
 		new Thread(() -> {
-			UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
-			camera.setResolution(640, 480);
+            UsbCamera camera = CameraServer.getInstance().startAutomaticCapture();
+            camera.setResolution(640, 480);
+            
+            CvSink cvSink = CameraServer.getInstance().getVideo();
+            CvSource outputStream = CameraServer.getInstance().putVideo("Line", 640, 480);
+            
+            Mat source = new Mat();
+            Mat output = new Mat();
+            
+            while(!Thread.interrupted()) {
+                cvSink.grabFrame(output);
+                int thickness = 2;
+                Imgproc.cvtColor(source, output, Imgproc.COLOR_BGR2GRAY);
 
-			CvSink cvSink = CameraServer.getInstance().getVideo();
-			CvSource outputStream = CameraServer.getInstance().putVideo("Line", 640, 480);
-
-			Mat output = new Mat();
-
-			while (!Thread.interrupted()) {
-				cvSink.grabFrame(output);
-				int thickness = 2;
-				Imgproc.line(output, new Point((output.size().width / 2), 0),
-						new Point((output.size().width / 2), (output.size().height)), new Scalar(0, 0, 0), thickness);
-				outputStream.putFrame(output);
-			}
-		}).start();
+                Imgproc.line(output, new Point((output.size().width / 2), 0), new Point((output.size().width / 2), (output.size().height)), new Scalar(0, 0, 0), thickness);
+                outputStream.putFrame(output);
+            }
+        }).start();
+		dashboardLogger.updateEssentialData();
 
 	}
 
@@ -117,7 +119,10 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
+		robot.reset();
+		robot.updateGyro();
 		AutoRoutineRunner.getTimer().reset();
+		input.updateInput();
 		auto.stop();
 
 		timer.reset();
@@ -128,6 +133,7 @@ public class Robot extends IterativeRobot {
 		deltaTimeSec = 0.0;
 
 		auto.start();
+		
 	}
 
 	/**
@@ -135,9 +141,13 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		robot.updateGyro();
+		SmartDashboard.putNumber("gyro", robot.getAngle());
 		visionController.update();
 		lights.setAutoLights();
 		dashboardLogger.updateData();
+		dashboardLogger.updateEssentialData();
+
 	}
 
 	/**
@@ -149,10 +159,8 @@ public class Robot extends IterativeRobot {
 		auto.stop();
 		robot.resetTimer();
 		robot.resetEncoders();
-		gearController.reset();
 		driveController.reset();
 		visionController.enable();
-		climberController.reset();
 		currTimeSec = 0.0;
 		lastTimeSec = 0.0;
 		deltaTimeSec = 0.0;
@@ -163,6 +171,8 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
+		SmartDashboard.putNumber("gyro", robot.getAngle());
+
 		dashboardLogger.updateData();
 		lastTimeSec = currTimeSec;
 		currTimeSec = robot.getTime();
@@ -170,9 +180,8 @@ public class Robot extends IterativeRobot {
 		humanControl.readControls();
 		driveController.update(currTimeSec, deltaTimeSec);
 		visionController.disable();
-		gearController.update();
 		lights.setEnabledLights();
-		climberController.update();
+		dashboardLogger.updateEssentialData();
 
 	}
 
@@ -181,14 +190,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
-		LiveWindow.run();
-		// Drive Train
-		LiveWindow.addActuator("Drive Train", "Front Left Motor", robot.leftDriveMotorA);
-		LiveWindow.addActuator("Drive Train", "Back Left Motor", robot.leftDriveMotorB);
-		LiveWindow.addActuator("Drive Train", "Front Right Motor", robot.rightDriveMotorA);
-		LiveWindow.addActuator("Drive Train", "Back Right Motor", robot.rightDriveMotorB);
-		LiveWindow.addSensor("Drive Train", "Left Encoder", robot.leftDriveEncoder);
-		LiveWindow.addSensor("Drive Train", "Right Encoder", robot.rightDriveEncoder);
+
 
 		input.updateInput();
 
@@ -203,14 +205,18 @@ public class Robot extends IterativeRobot {
 		} else if (humanControl.getTankDriveDesired()) {
 			Params.USE_ARCADE_DRIVE = false;
 		}
+		robot.reset();
 		input.updateInput();
+		dashboardLogger.updateEssentialData();
 
 	}
 
 	public void disabledPeriodic() {
+		robot.reset();
+
 		input.updateInput();
 		dashboardLogger.updateData();
-
+		dashboardLogger.updateEssentialData();
 		AutoRoutineRunner.getTimer().reset();
 		humanControl.readControls();
 		visionController.update();

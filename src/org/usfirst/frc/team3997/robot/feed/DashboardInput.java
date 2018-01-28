@@ -3,30 +3,48 @@ package org.usfirst.frc.team3997.robot.feed;
 import edu.wpi.first.wpilibj.Preferences;
 
 public class DashboardInput {
-	private Preferences prefs;
+
+	Preferences preferences;
+
 	public DashboardInput() {
-		prefs = Preferences.getInstance();
-		
-		DashboardVariables.firstAutoDistance = prefs.getDouble("First Auto Distance", 0.0);
-		DashboardVariables.nextAutoAngle = prefs.getDouble("Next Auto Angle", 0.0);
-		DashboardVariables.lastAutoDistance = prefs.getDouble("Last Auto Distance", 0.0);
+		try {
 
-		DashboardVariables.P = prefs.getDouble("P", 0.0);
-		DashboardVariables.I = prefs.getDouble("I", 0.0);
-		DashboardVariables.D = prefs.getDouble("D", 0.0);
+			DashboardVariables.firstAutoDistance = preferences.getDouble("First Auto Distance", 0);
+
+			DashboardVariables.nextAutoAngle = preferences.getDouble("Next Auto Angle", 0);
+
+			DashboardVariables.lastAutoDistance = preferences.getDouble("Second Auto Distance", 0);
+
+			DashboardVariables.DRIVE_P = preferences.getDouble("Drive P Value", 0);
+			DashboardVariables.DRIVE_I = preferences.getDouble("Drive I Value", 0);
+			DashboardVariables.DRIVE_D = preferences.getDouble("Drive D Value", 0);
+
+			DashboardVariables.max_speed = preferences.getDouble("Max Speed", 1);
+		} catch (Exception e) {
+
+		}
+
 	}
-	
+
 	public void updateInput() {
-		prefs = Preferences.getInstance();
-		
-		DashboardVariables.firstAutoDistance = prefs.getDouble("First Auto Distance", 0.0);
-		DashboardVariables.nextAutoAngle = prefs.getDouble("Next Auto Angle", 0.0);
-		DashboardVariables.lastAutoDistance = prefs.getDouble("Last Auto Distance", 0.0);
 
-		DashboardVariables.P = prefs.getDouble("P", 0.0);
-		DashboardVariables.I = prefs.getDouble("I", 0.0);
-		DashboardVariables.D = prefs.getDouble("D", 0.0);
+		try {
+
+			DashboardVariables.firstAutoDistance = preferences.getDouble("First Auto Distance", 0);
+
+			DashboardVariables.nextAutoAngle = preferences.getDouble("Next Auto Angle", 0);
+
+			DashboardVariables.lastAutoDistance = preferences.getDouble("Second Auto Distance", 0);
+
+			DashboardVariables.DRIVE_P = preferences.getDouble("Drive P Value", 0);
+			DashboardVariables.DRIVE_I = preferences.getDouble("Drive I Value", 0);
+			DashboardVariables.DRIVE_D = preferences.getDouble("Drive D Value", 0);
+
+			DashboardVariables.max_speed = preferences.getDouble("Max Speed", 1);
+		} catch (Exception e) {
+
+		}
+
 	}
-	
 
 }

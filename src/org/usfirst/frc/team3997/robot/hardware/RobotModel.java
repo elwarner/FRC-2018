@@ -8,12 +8,11 @@ import org.usfirst.frc.team3997.robot.hardware.Ports;
 public class RobotModel {
 
 	public Spark leftDriveMotorA, leftDriveMotorB, rightDriveMotorA, rightDriveMotorB;
-	public VictorSP climberMotor;
-	public Talon gearTilterMotor, gearIntakeMotor;
+	public SpeedControllerGroup leftDriveMotors, rightDriveMotors;
 	public Encoder leftDriveEncoder, rightDriveEncoder;
-	public AnalogGyro gyro;
-	public Potentiometer gearPot;
-	public CameraServer camera;
+	public MPU9250Gyro gyro;
+
+	//public CameraServer camera;
 	public Timer timer;
 
 	private PowerDistributionPanel pdp;
@@ -26,14 +25,12 @@ public class RobotModel {
 		leftDriveMotorB = new Spark(Ports.LEFT_DRIVE_MOTOR_B_PWM_PORT);
 		rightDriveMotorA = new Spark(Ports.RIGHT_DRIVE_MOTOR_A_PWM_PORT);
 		rightDriveMotorB = new Spark(Ports.RIGHT_DRIVE_MOTOR_B_PWM_PORT);
-		climberMotor = new VictorSP(Ports.CLIMBER_MOTOR_PWM_PORT);
-		gearTilterMotor = new Talon(Ports.GEAR_TILTER_MOTOR_PWM_PORT);
-		gearIntakeMotor = new Talon(Ports.GEAR_INTAKE_MOTOR_PWM_PORT);
+		
+		leftDriveMotors = new SpeedControllerGroup(leftDriveMotorA, leftDriveMotorB);
+		rightDriveMotors = new SpeedControllerGroup(rightDriveMotorA, rightDriveMotorB);
 
-		gearPot = new AnalogPotentiometer(Ports.GEAR_POT);
 		// TODO add real input channel
 		// gyro = new AnalogGyro(channel);
-		gyro.reset();
 
 		leftDriveEncoder = new Encoder(Ports.LEFT_DRIVE_ENCODER_PORTS[0], Ports.LEFT_DRIVE_ENCODER_PORTS[1]);
 		rightDriveEncoder = new Encoder(Ports.RIGHT_DRIVE_ENCODER_PORTS[0], Ports.RIGHT_DRIVE_ENCODER_PORTS[1]);
@@ -62,9 +59,15 @@ public class RobotModel {
 
 		timer = new Timer();
 		timer.start();
+		
+		gyro = new MPU9250Gyro();
 		// TODO add real url
-		camera.addServer("Server");
+		//camera.addServer("Server");
 
+	}
+
+	public void updateGyro() {
+		gyro.update();
 	}
 
 	public enum Wheels {
@@ -110,6 +113,7 @@ public class RobotModel {
 	// resets variables and objects
 	public void reset() {
 		resetEncoders();
+		gyro.reset();
 	}
 
 	// initializes variables pertaining to current
@@ -162,7 +166,7 @@ public class RobotModel {
 	}
 
 	public double getTimestamp() {
-		return timer.getFPGATimestamp();
+		return 	timer.getFPGATimestamp();
 	}
 
 	// returns the time
@@ -198,32 +202,5 @@ public class RobotModel {
 		rightDriveMotorA.set(output);
 		rightDriveMotorB.set(output);
 	}
-
-	public void setGearIntakeSpeed(double speed) {
-		gearIntakeMotor.set(speed);
-	}
-
-	public double getGearIntakeSpeed() {
-		return gearIntakeMotor.get();
-	}
-
-	public void setGearTilterSpeed(double speed) {
-		gearTilterMotor.set(speed);
-	}
-
-	public double getGearTilterSpeed() {
-		return gearTilterMotor.get();
-	}
-
-	public void setClimberSpeed(double speed) {
-		climberMotor.set(speed);
-	}
-
-	public double getClimberSpeed() {
-		return climberMotor.get();
-	}
-
-	public double getGearPotReading() {
-		return gearPot.get();
-	}
+	
 }

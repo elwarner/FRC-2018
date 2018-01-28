@@ -15,16 +15,16 @@ public class Auto {
 		
 	}
 	
-	
+	// reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset reset 
 	public void reset() {
 		AutoRoutineRunner.getTimer().reset();
 		
 	}
-	
+	//List Routines in Smart Dashboard
 	public void listOptions() {
 		selector.listOptions();
 	}
-	
+	// start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start  start 
 	public void start() {
 		autoRoutine = selector.pick();
 		runner.setAutoRoutine(autoRoutine);
@@ -33,7 +33,7 @@ public class Auto {
 		
 		runner.start();
 	}
-	
+	// STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP STOP 
 	public void stop() {
 		AutoRoutineRunner.getTimer().reset();
 		AutoRoutineRunner.getTimer().stop();
